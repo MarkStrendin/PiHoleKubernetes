@@ -20,13 +20,22 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: registration-configmap
+  name: pihole-configmap
   labels:
-    app: storefrontmanager
+    app: pihole
 data:
   DNS1: 1.0.0.1
   DNS2: 142.168.200.5
-  WEBPASSWORD: PASSWORDGOESHERE
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pihole-secrets
+  labels:
+    app: pihole
+type: Opaque
+data:
+  WEBPASSWORD: BASE64ENCODEDPASSWORDGOESHERE
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -54,7 +63,9 @@ spec:
               protocol: UDP
           envFrom:
             - configMapRef:
-                name: registration-configmap
+                name: pihole-configmap
+            - secretRef:
+                name: pihole-secrets
           readinessProbe:
             httpGet:
               path: /
